@@ -3,6 +3,11 @@
 
 pragma circom 2.0.0;
 
+include "../node_modules/circomlib/circuits/comparators.circom";
+include "../node_modules/circomlib/circuits/poseidon.circom";
+include "../node_modules/circomlib/circuits/smt/smtverifier.circom";
+include "../node_modules/circomlib/circuits/eddsaposeidon.circom";
+
 template zkmultisig(nMaxVotes, nLevels) {
     var circomNLevels = nLevels+1;
 
@@ -28,11 +33,30 @@ template zkmultisig(nMaxVotes, nLevels) {
     // census proofs
     signal input siblings[nMaxVotes][circomNLevels];
 
-
     // CensusProof verification
     component indexChecker[nMaxVotes];
     component pkHash[nMaxVotes];
     component smtPkExists[nMaxVotes];
     component msgToSign[nMaxVotes];
     component sigVerifier[nMaxVotes];
+
+    for (var i=0; i<nMaxVotes; i++) {
+	// check CensusProof
+	pkHash[i] = Poseidon(2);
+	pkHash[i].inputs[0] <== pkX[i];
+	pkHash[i].inputs[1] <== pkY[i];
+
+	smtPkExists[i] = SMTVerifier(circomNLevels);
+	smtPkExists[i].enabled <== 1;
+	smtPkExists[i].fnc <== 0; // 0 as is to verify inclusion
+	smtPkExists[i].root <== censusRoot;
+	for (var j=0; j<circomNLevels; j++) {
+	    smtPkExists[i].siblings[j] <== siblings[i][j];
+	}
+	smtPkExists[i].oldKey <== 0;
+	smtPkExists[i].oldValue <== 0;
+	smtPkExists[i].isOld0 <== 0;
+	smtPkExists[i].key <== index[i];
+	smtPkExists[i].value <== pkHash[i].out;
+    }
 }
