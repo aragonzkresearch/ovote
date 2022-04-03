@@ -36,7 +36,6 @@ describe("Check nConstraints for PkXExtractor vs poseidon hash", function () {
 	`;
 	fs.writeFileSync(circuitPath, circuitCode, "utf8");
 
-	// cir = await c_tester(circuitPath);
 	cir = await wasm_tester(circuitPath);
 
 	await cir.loadConstraints();
@@ -52,7 +51,6 @@ describe("Check nConstraints for PkXExtractor vs poseidon hash", function () {
 	`;
 	fs.writeFileSync(circuitPath, circuitCode, "utf8");
 
-	// cir = await c_tester(circuitPath);
 	cir = await wasm_tester(circuitPath);
 
 	await cir.loadConstraints();

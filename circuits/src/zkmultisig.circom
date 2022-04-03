@@ -40,7 +40,18 @@ template zkmultisig(nMaxVotes, nLevels) {
     component msgToSign[nMaxVotes];
     component sigVerifier[nMaxVotes];
 
+    var r = 0;
     for (var i=0; i<nMaxVotes; i++) {
+	// check that index[i]<index[i+1], to ensure that no pubK index is
+	// repeated
+	if (i<nMaxVotes-1) {
+	    indexChecker[i] = LessThan(32);
+	    indexChecker[i].in[0] <== index[i];
+	    indexChecker[i].in[1] <== index[i+1];
+	    indexChecker[i].out === 1;
+	}
+
+
 	// check CensusProof
 	pkHash[i] = Poseidon(2);
 	pkHash[i].inputs[0] <== pkX[i];
@@ -58,5 +69,27 @@ template zkmultisig(nMaxVotes, nLevels) {
 	smtPkExists[i].isOld0 <== 0;
 	smtPkExists[i].key <== index[i];
 	smtPkExists[i].value <== pkHash[i].out;
+
+
+	// check signature
+	msgToSign[i] = Poseidon(3);
+	msgToSign[i].inputs[0] <== chainID;
+	msgToSign[i].inputs[1] <== processID;
+	msgToSign[i].inputs[2] <== vote[i];
+
+	sigVerifier[i] = EdDSAPoseidonVerifier();
+	sigVerifier[i].enabled <== 1;
+	sigVerifier[i].Ax <== pkX[i];
+	sigVerifier[i].Ay <== pkY[i];
+	sigVerifier[i].S <== s[i];
+	sigVerifier[i].R8x <== r8x[i];
+	sigVerifier[i].R8y <== r8y[i];
+	sigVerifier[i].M <== msgToSign[i].out;
+
+	// TODO ensure vote is 0 or 1
+	// count the vote
+	r = r + vote[i];
     }
+    // check result
+    result === r;
 }
