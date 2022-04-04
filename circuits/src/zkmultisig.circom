@@ -41,6 +41,7 @@ template zkmultisig(nMaxVotes, nLevels) {
     component smtPkExists[nMaxVotes];
     component msgToSign[nMaxVotes];
     component sigVerifier[nMaxVotes];
+    component validVote[nMaxVotes];
 
     // TODO check nVotes <= nMaxVotes
 
@@ -55,7 +56,7 @@ template zkmultisig(nMaxVotes, nLevels) {
 
 	// check that index[i]<index[i+1], to ensure that no pubK index is
 	// repeated
-	if (i<nMaxVotes-1) { // TODO make it depend on i<nVotes-1
+	if (i<nMaxVotes-1) {
 	    indexChecker[i] = LessThan(32);
 	    indexChecker[i].in[0] <== index[i];
 	    indexChecker[i].in[1] <== index[i+1];
@@ -97,11 +98,27 @@ template zkmultisig(nMaxVotes, nLevels) {
 	sigVerifier[i].R8y <== r8y[i];
 	sigVerifier[i].M <== msgToSign[i].out;
 
-	// TODO ensure vote is 0 or 1
+	// ensure vote is 0 or 1 (v==0 or v==1)
+	validVote[i] = Ensure0or1();
+	validVote[i].v <== vote[i];
 
 	// count the vote (if i<nVotes)
 	r[i+1] <== r[i] + vote[i] * inNVotes[i].out;
     }
     // check result
     result === r[nMaxVotes];
+}
+
+template Ensure0or1() {
+    signal input v;
+
+    component is_0 = IsEqual();
+    is_0.in[0] <== v;
+    is_0.in[1] <== 0;
+
+    component is_1 = IsEqual();
+    is_1.in[0] <== v;
+    is_1.in[1] <== 1;
+
+    is_0.out + is_1.out - is_0.out * is_1.out === 1;
 }
