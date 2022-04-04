@@ -17,6 +17,7 @@ template zkmultisig(nMaxVotes, nLevels) {
     signal input processID; // determined by process creation
     signal input ethEndBlockNum; // determined by process creation
     signal input censusRoot; // determined by process creation
+    signal input nVotes; // determined by results publishing in the contract
     signal input result; // input from the contract call
 
     /////
@@ -34,21 +35,31 @@ template zkmultisig(nMaxVotes, nLevels) {
     signal input siblings[nMaxVotes][circomNLevels];
 
     // CensusProof verification
+    component inNVotes[nMaxVotes];
     component indexChecker[nMaxVotes];
     component pkHash[nMaxVotes];
     component smtPkExists[nMaxVotes];
     component msgToSign[nMaxVotes];
     component sigVerifier[nMaxVotes];
 
-    var r = 0;
+    // TODO check nVotes <= nMaxVotes
+
+    signal r[nMaxVotes+1];
+    r[0] <== 0;
+
     for (var i=0; i<nMaxVotes; i++) {
+	// inNVotes = i<nVotes
+	inNVotes[i] = LessThan(32);
+	inNVotes[i].in[0] <== i;
+	inNVotes[i].in[1] <== nVotes;
+
 	// check that index[i]<index[i+1], to ensure that no pubK index is
 	// repeated
-	if (i<nMaxVotes-1) {
+	if (i<nMaxVotes-1) { // TODO make it depend on i<nVotes-1
 	    indexChecker[i] = LessThan(32);
 	    indexChecker[i].in[0] <== index[i];
 	    indexChecker[i].in[1] <== index[i+1];
-	    indexChecker[i].out === 1;
+	    indexChecker[i].out === 1 * inNVotes[i].out ; // enable the indexChecker if i<nVotes
 	}
 
 
@@ -56,9 +67,9 @@ template zkmultisig(nMaxVotes, nLevels) {
 	pkHash[i] = Poseidon(2);
 	pkHash[i].inputs[0] <== pkX[i];
 	pkHash[i].inputs[1] <== pkY[i];
-
+	
 	smtPkExists[i] = SMTVerifier(circomNLevels);
-	smtPkExists[i].enabled <== 1;
+	smtPkExists[i].enabled <== inNVotes[i].out; // enable it if i<nVotes
 	smtPkExists[i].fnc <== 0; // 0 as is to verify inclusion
 	smtPkExists[i].root <== censusRoot;
 	for (var j=0; j<circomNLevels; j++) {
@@ -76,9 +87,9 @@ template zkmultisig(nMaxVotes, nLevels) {
 	msgToSign[i].inputs[0] <== chainID;
 	msgToSign[i].inputs[1] <== processID;
 	msgToSign[i].inputs[2] <== vote[i];
-
+	
 	sigVerifier[i] = EdDSAPoseidonVerifier();
-	sigVerifier[i].enabled <== 1;
+	sigVerifier[i].enabled <== inNVotes[i].out; // enable it if i<nvotes
 	sigVerifier[i].Ax <== pkX[i];
 	sigVerifier[i].Ay <== pkY[i];
 	sigVerifier[i].S <== s[i];
@@ -87,9 +98,10 @@ template zkmultisig(nMaxVotes, nLevels) {
 	sigVerifier[i].M <== msgToSign[i].out;
 
 	// TODO ensure vote is 0 or 1
-	// count the vote
-	r = r + vote[i];
+
+	// count the vote (if i<nVotes)
+	r[i+1] <== r[i] + vote[i] * inNVotes[i].out;
     }
     // check result
-    result === r;
+    result === r[nMaxVotes];
 }

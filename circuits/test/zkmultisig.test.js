@@ -8,16 +8,16 @@ const assert = chai.assert;
 const wasm_tester = require("circom_tester").wasm;
 
 
-describe("zkmultisig 4 votes, 2 lvls", function () {
+describe("zkmultisig 2 votes, 2 lvls", function () {
     this.timeout(100000);
 
     let cir;
     before(async () => {
-	const circuitPath = path.join(__dirname, "circuits", "4votes2lvls.circom");
+	const circuitPath = path.join(__dirname, "circuits", "2votes2lvls.circom");
 	const circuitCode = `
 	    pragma circom 2.0.0;
 	    include "../../src/zkmultisig.circom";
-	    component main {public [chainID, processID, ethEndBlockNum, censusRoot, result]}= zkmultisig(4, 2);
+	    component main {public [chainID, processID, ethEndBlockNum, censusRoot, result]}= zkmultisig(2, 2);
 	`;
 	fs.writeFileSync(circuitPath, circuitCode, "utf8");
 
@@ -28,13 +28,25 @@ describe("zkmultisig 4 votes, 2 lvls", function () {
 	console.log("n_constraints", cir.constraints.length);
     });
 
-    it ("circuit test", async () => {
-	// WIP
-	const inputs = {};
+    it ("prevent counting votes that don't have signature & censusProof", async () => {
+	const inputs = {
+	    chainID: 0n,
+	    processID: 0n,
+	    ethEndBlockNum: 0n,
+	    censusRoot: 0n,
+	    nVotes: 0n,
+	    result: 0n, // result should be 0, despite having 2 vote values, as there are no signatures & censusProofs
+	    vote: [1n, 1n],
+	    index: [0n, 0n],
+	    pkX: [0n, 0n],
+	    pkY: [0n, 0n],
+	    s: [0n, 0n],
+	    r8x: [0n, 0n],
+	    r8y: [0n, 0n],
+	    siblings: [[0n, 0n, 0n], [0n, 0n, 0n]]
+	};
 
 	const witness = await cir.calculateWitness(inputs, true);
-
-	// const stateOut = witness.slice(1, 1+(32*8));
-	// assert.deepEqual(stateOutBytes, expectedOut);
+	await cir.checkConstraints(witness);
     });
 });
