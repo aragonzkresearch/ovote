@@ -62,6 +62,34 @@ contract ZKMultisigTest is DSTest {
         }
     }
 
+    function testPublishResult() public {
+        CheatCodes cheats = CheatCodes(HEVM_ADDRESS);
+
+        // create a 1st process
+        uint256 id = zkmultisig.newProcess(2222, 1111, 1000, 1000, 100, 10, 60);
+
+        cheats.roll(1000);
+
+        // publish result
+        zkmultisig.publishResult(id, 204, 250);
+        // publish another result containing more votes
+        zkmultisig.publishResult(id, 204, 300);
+
+        // expect revert when trying to publish a result with same amount of
+        // votes than the last accepted one
+        cheats.expectRevert(bytes("nVotes > results[id].nVotes"));
+        zkmultisig.publishResult(id, 204, 300);
+
+        // expect revert when trying to publish a result with more votes than
+        // censusSize
+        cheats.expectRevert(bytes("nVotes <= processes[id].censusSize"));
+        zkmultisig.publishResult(id, 204, 1001);
+
+        // expect revert when trying to publish a result for a process that does not exist
+        cheats.expectRevert(bytes("process id does not exist"));
+        zkmultisig.publishResult(2, 204, 300);
+    }
+
     function testCloseProcess() public {
         CheatCodes cheats = CheatCodes(HEVM_ADDRESS);
 
@@ -70,11 +98,12 @@ contract ZKMultisigTest is DSTest {
         assertEq(id, 1);
 
         // publish result
-        // zkmultisig.publishResult(id, 204, 300); // WIP
+        cheats.roll(1000);
+        zkmultisig.publishResult(id, 204, 300);
 
         // try to close process, but expect revert
         cheats.roll(1099);
-        cheats.expectRevert(bytes("process.ethEndBlockNum not reached yet"));
+        cheats.expectRevert(bytes("process.resPubStartBlock not reached yet"));
         zkmultisig.closeProcess(1);
 
         (,,,,,,,, bool _closed) = zkmultisig.processes(1);
