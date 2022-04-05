@@ -44,7 +44,7 @@ contract ZKMultisigTest is DSTest {
         id = zkmultisig.newProcess(2222, 1111, 1000, 1000, 100, 10, 60);
         assertEq(id, 2);
         // get the process with id=2
-        { // scope for process 1, avoids stack too deep errors
+        { // scope for process 2, avoids stack too deep errors
         (address _creator, uint256 _transactionHash, uint256 _censusRoot,
          uint64 _censusSize, uint64 _ethEndBlockNum, uint64
          _resultsPublishingWindow, uint8 _minParticipation, uint8

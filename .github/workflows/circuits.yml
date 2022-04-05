@@ -1,4 +1,4 @@
-name: TestCircuits
+name: Circuits
 on: [ push, pull_request ]
 jobs:
   test:
