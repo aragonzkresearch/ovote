@@ -2,6 +2,7 @@ name: Circuits
 on: [ push, pull_request ]
 jobs:
   test:
+    name: Circuits tests
     runs-on: ubuntu-latest
     strategy:
       matrix:

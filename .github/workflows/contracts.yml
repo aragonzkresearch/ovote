@@ -2,7 +2,7 @@ name: Contracts
 on: [ push, pull_request ]
 jobs:
   check:
-    name: Foundry project
+    name: Contracts tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

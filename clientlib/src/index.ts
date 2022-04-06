@@ -1,6 +1,12 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 const { buildEddsa, buildPoseidon } = require("circomlibjs");
 
+const fromHexString = hexString =>
+	new Uint8Array(hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+
+const toHexString = bytes =>
+	bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');
+
 // key creation, iteration 0 is creating a new privK, for the 1st iteration
 // private key will be derived from a Metamask (secp256k1) signature, as other
 // zkRollups do
