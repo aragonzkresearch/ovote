@@ -4,6 +4,7 @@ pragma solidity 0.8.10;
 // WARNING: This code is WIP, in early stages.
 
 /// @title ZKMultisig
+/// @author Aragon Association - 2022
 contract ZKMultisig {
 	struct Process {
 		address creator; // the sender of the tx that created the process
@@ -52,6 +53,7 @@ contract ZKMultisig {
 	/// @param resPubWindow Window of time (in number of blocks) of the results publishing phase
 	/// @param minParticipation Threshold of minimum number of votes over the total users in the census (over CensusSize)
 	/// @param minPositiveVotes Threshold of minimum votes supporting the proposal, over all the processed votes (% over nVotes)
+	/// @return id assigned to the created process
 	function newProcess(
 		uint256 transactionHash,
 		uint256 censusRoot,
@@ -138,7 +140,6 @@ contract ZKMultisig {
 
 		// close process (in storage)
 		process.closed = true;
-
 
 		// get result by process id
 		Result storage result;
