@@ -2,4 +2,19 @@
 
 *Research project*
 
-This repo contains the circuits, contracts & web client library for the zkMultisig, compatible with the [zkmultisig-node](https://github.com/aragon/zkmultisig-node).
+This repo contains the circuits, contracts & web client library for the zkMultisig, compatible with the [zkmultisig-node](https://github.com/aragon/zkmultisig-node). All code is in early stages.
+
+
+## Test
+
+- Circuits
+   - Needs installed: [circom](https://github.com/iden3/circom), [nodejs](https://nodejs.org) (version: >16)
+   - Install the dependencies: `npm install`
+   - Run the tests: `npm run test`
+- Contracts
+   - Needs installed: [foundndry](https://github.com/gakonst/foundry)
+   - Run the tests: `forge test`
+- Clientlib
+   - Needs installed: [nodejs](https://nodejs.org) (version: >16)
+   - Install the dependencies: `npm install`
+   - Run the tests: `npm run test`

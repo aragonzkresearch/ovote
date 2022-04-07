@@ -18,7 +18,7 @@ describe("zkmultisig 2 votes, 2 lvls", function () {
 	const circuitCode = `
 	    pragma circom 2.0.0;
 	    include "../../src/zkmultisig.circom";
-	    component main {public [chainID, processID, ethEndBlockNum, censusRoot, result]}= zkmultisig(2, 2);
+	    component main {public [chainID, processID, censusRoot, result]}= zkmultisig(2, 2);
 	`;
 	fs.writeFileSync(circuitPath, circuitCode, "utf8");
 
@@ -33,7 +33,6 @@ describe("zkmultisig 2 votes, 2 lvls", function () {
 	const inputs = {
 	    chainID: 0n,
 	    processID: 0n,
-	    ethEndBlockNum: 0n,
 	    censusRoot: 0n,
 	    nVotes: 0n,
 	    result: 0n, // result should be 0, despite having 2 vote values, as there are no signatures & censusProofs
@@ -55,7 +54,6 @@ describe("zkmultisig 2 votes, 2 lvls", function () {
 	const inputs = {
 	    chainID: 0n,
 	    processID: 0n,
-	    ethEndBlockNum: 0n,
 	    censusRoot: 0n,
 	    nVotes: 0n,
 	    result: 2n, // try to set result != 0, expecting the circuit to fail
@@ -84,7 +82,6 @@ describe("zkmultisig 2 votes, 2 lvls", function () {
 	const inputs = {
 	    chainID: 0n,
 	    processID: 0n,
-	    ethEndBlockNum: 0n,
 	    censusRoot: 0n,
 	    nVotes: 0n,
 	    result: 0n,

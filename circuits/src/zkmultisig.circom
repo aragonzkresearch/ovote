@@ -15,7 +15,6 @@ template zkmultisig(nMaxVotes, nLevels) {
     // public inputs
     signal input chainID; // hardcoded in contract deployment
     signal input processID; // determined by process creation
-    signal input ethEndBlockNum; // determined by process creation
     signal input censusRoot; // determined by process creation
     signal input nVotes; // determined by results publishing in the contract
     signal input result; // input from the contract call
@@ -43,21 +42,20 @@ template zkmultisig(nMaxVotes, nLevels) {
     component sigVerifier[nMaxVotes];
     component validVote[nMaxVotes];
 
-    // TODO check nVotes <= nMaxVotes
-
     signal r[nMaxVotes+1];
     r[0] <== 0;
 
     for (var i=0; i<nMaxVotes; i++) {
-	// inNVotes = i<nVotes
-	inNVotes[i] = LessThan(32);
+	// if inNVotes = i<nVotes, do the signature + censusproof verifications
+	// and count the vote
+	inNVotes[i] = LessThan(64); // nVotes is a uint64
 	inNVotes[i].in[0] <== i;
 	inNVotes[i].in[1] <== nVotes;
 
 	// check that index[i]<index[i+1], to ensure that no pubK index is
 	// repeated
 	if (i<nMaxVotes-1) {
-	    indexChecker[i] = LessThan(32);
+	    indexChecker[i] = LessThan(64); // index is a uint64
 	    indexChecker[i].in[0] <== index[i];
 	    indexChecker[i].in[1] <== index[i+1];
 	    indexChecker[i].out === 1 * inNVotes[i].out ; // enable the indexChecker if i<nVotes
