@@ -71,23 +71,23 @@ contract ZKMultisigTest is DSTest {
         cheats.roll(1000);
 
         // publish result
-        zkmultisig.publishResult(id, 204, 250);
+        zkmultisig.publishResult(id, 3333, 204, 250);
         // publish another result containing more votes
-        zkmultisig.publishResult(id, 204, 300);
+        zkmultisig.publishResult(id, 3333, 204, 300);
 
         // expect revert when trying to publish a result with same amount of
         // votes than the last accepted one
         cheats.expectRevert(bytes("nVotes > results[id].nVotes"));
-        zkmultisig.publishResult(id, 204, 300);
+        zkmultisig.publishResult(id, 3333, 204, 300);
 
         // expect revert when trying to publish a result with more votes than
         // censusSize
         cheats.expectRevert(bytes("nVotes <= processes[id].censusSize"));
-        zkmultisig.publishResult(id, 204, 1001);
+        zkmultisig.publishResult(id, 3333, 204, 1001);
 
         // expect revert when trying to publish a result for a process that does not exist
         cheats.expectRevert(bytes("process id does not exist"));
-        zkmultisig.publishResult(2, 204, 300);
+        zkmultisig.publishResult(2, 3333, 204, 300);
     }
 
     function testCloseProcess() public {
@@ -99,7 +99,7 @@ contract ZKMultisigTest is DSTest {
 
         // publish result
         cheats.roll(1000);
-        zkmultisig.publishResult(id, 204, 300);
+        zkmultisig.publishResult(id, 3333, 204, 300);
 
         // try to close process, but expect revert
         cheats.roll(1099);

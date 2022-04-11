@@ -16,6 +16,7 @@ template zkmultisig(nMaxVotes, nLevels) {
     signal input chainID; // hardcoded in contract deployment
     signal input processID; // determined by process creation
     signal input censusRoot; // determined by process creation
+    signal input receiptsRoot;
     signal input nVotes; // determined by results publishing in the contract
     signal input result; // input from the contract call
 
@@ -32,12 +33,14 @@ template zkmultisig(nMaxVotes, nLevels) {
     signal input r8y[nMaxVotes];
     // census proofs
     signal input siblings[nMaxVotes][circomNLevels];
+    signal input receiptsSiblings[nMaxVotes][circomNLevels];
 
     // CensusProof verification
     component inNVotes[nMaxVotes];
     component indexChecker[nMaxVotes];
     component pkHash[nMaxVotes];
-    component smtPkExists[nMaxVotes];
+    component censusProofCheck[nMaxVotes];
+    component receiptsCheck[nMaxVotes];
     component msgToSign[nMaxVotes];
     component sigVerifier[nMaxVotes];
     component validVote[nMaxVotes];
@@ -67,18 +70,32 @@ template zkmultisig(nMaxVotes, nLevels) {
 	pkHash[i].inputs[0] <== pkX[i];
 	pkHash[i].inputs[1] <== pkY[i];
 	
-	smtPkExists[i] = SMTVerifier(circomNLevels);
-	smtPkExists[i].enabled <== inNVotes[i].out; // enable it if i<nVotes
-	smtPkExists[i].fnc <== 0; // 0 as is to verify inclusion
-	smtPkExists[i].root <== censusRoot;
+	censusProofCheck[i] = SMTVerifier(circomNLevels);
+	censusProofCheck[i].enabled <== inNVotes[i].out; // enable it if i<nVotes
+	censusProofCheck[i].fnc <== 0; // 0 as is to verify inclusion
+	censusProofCheck[i].root <== censusRoot;
 	for (var j=0; j<circomNLevels; j++) {
-	    smtPkExists[i].siblings[j] <== siblings[i][j];
+	    censusProofCheck[i].siblings[j] <== siblings[i][j];
 	}
-	smtPkExists[i].oldKey <== 0;
-	smtPkExists[i].oldValue <== 0;
-	smtPkExists[i].isOld0 <== 0;
-	smtPkExists[i].key <== index[i];
-	smtPkExists[i].value <== pkHash[i].out;
+	censusProofCheck[i].oldKey <== 0;
+	censusProofCheck[i].oldValue <== 0;
+	censusProofCheck[i].isOld0 <== 0;
+	censusProofCheck[i].key <== index[i];
+	censusProofCheck[i].value <== pkHash[i].out;
+
+	// check receipts proof
+	receiptsCheck[i] = SMTVerifier(circomNLevels);
+	receiptsCheck[i].enabled <== inNVotes[i].out; // enable it if i<nVotes
+	receiptsCheck[i].fnc <== 0; // 0 as is to verify inclusion
+	receiptsCheck[i].root <== receiptsRoot;
+	for (var j=0; j<circomNLevels; j++) {
+	    receiptsCheck[i].siblings[j] <== receiptsSiblings[i][j];
+	}
+	receiptsCheck[i].oldKey <== 0;
+	receiptsCheck[i].oldValue <== 0;
+	receiptsCheck[i].isOld0 <== 0;
+	receiptsCheck[i].key <== index[i];
+	receiptsCheck[i].value <== pkHash[i].out;
 
 
 	// check signature

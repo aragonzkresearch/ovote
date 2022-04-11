@@ -22,8 +22,9 @@ contract ZKMultisig {
 	}
 	struct Result {
 		address publisher;
-		uint256 result;
-		uint256 nVotes;
+		uint256 receiptsRoot;
+		uint64 result;
+		uint64 nVotes;
 	}
 
 	uint256 public lastProcessID; // initialized at 0
@@ -36,11 +37,11 @@ contract ZKMultisig {
 	event EventProcessCreated(address creator, uint256 id,uint256
 				  transactionHash,  uint256 censusRoot, uint64
 				  censusSize, uint64 resPubStartBlock, uint64
-				  resPubWindow, uint8
-				  minParticipation, uint8 minPositiveVotes);
+				  resPubWindow, uint8 minParticipation, uint8
+				  minPositiveVotes);
 
 	event EventResultPublished(address publisher, uint256 id, uint256
-				   result, uint256 nVotes);
+				   receiptsRoot, uint64 result, uint64 nVotes);
 
 	event EventProcessClosed(address caller, uint256 id, bool success);
 
@@ -85,14 +86,16 @@ contract ZKMultisig {
 	/// @notice validates the proposed result during the results-publishing
 	/// phase, and if it is valid, it stores it for the process id
 	/// @param id Process id
+	/// @param receiptsRoot The MerkleRoot of the tree built from of included voters
 	/// @param result The proposed result
 	/// @param nVotes The number of votes included in the result
 	// /// @param a Groth16 proof G1 point
 	// /// @param b Groth16 proof G2 point
 	// /// @param c Groth16 proof G1 point
 	function publishResult(uint256 id,
-		uint256 result,
-		uint256 nVotes
+		uint256 receiptsRoot,
+		uint64 result,
+		uint64 nVotes
 		// uint[2] memory a, uint[2][2] memory b, uint[2] memory c // WIP Groth16 proof
         ) public {
 		// check that id has a process
@@ -126,9 +129,9 @@ contract ZKMultisig {
 			"nVotes > process.minParticipation %");
 
 		// Result memory result;
-		results[id] = Result(msg.sender, result, nVotes);
+		results[id] = Result(msg.sender, receiptsRoot, result, nVotes);
 
-		emit EventResultPublished(msg.sender, id, result, nVotes);
+		emit EventResultPublished(msg.sender, id, receiptsRoot, result, nVotes);
 	}
 
 	// @notice closes the process for the given id

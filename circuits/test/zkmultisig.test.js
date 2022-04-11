@@ -34,6 +34,7 @@ describe("zkmultisig 2 votes, 2 lvls", function () {
 	    chainID: 0n,
 	    processID: 0n,
 	    censusRoot: 0n,
+	    receiptsRoot: 0n,
 	    nVotes: 0n,
 	    result: 0n, // result should be 0, despite having 2 vote values, as there are no signatures & censusProofs
 	    vote: [1n, 1n],
@@ -43,7 +44,8 @@ describe("zkmultisig 2 votes, 2 lvls", function () {
 	    s: [0n, 0n],
 	    r8x: [0n, 0n],
 	    r8y: [0n, 0n],
-	    siblings: [[0n, 0n, 0n], [0n, 0n, 0n]]
+	    siblings: [[0n, 0n, 0n], [0n, 0n, 0n]],
+	    receiptsSiblings: [[0n, 0n, 0n], [0n, 0n, 0n]]
 	};
 
 	const witness = await cir.calculateWitness(inputs, true);
@@ -55,6 +57,7 @@ describe("zkmultisig 2 votes, 2 lvls", function () {
 	    chainID: 0n,
 	    processID: 0n,
 	    censusRoot: 0n,
+	    receiptsRoot: 0n,
 	    nVotes: 0n,
 	    result: 2n, // try to set result != 0, expecting the circuit to fail
 	    vote: [1n, 1n],
@@ -64,7 +67,8 @@ describe("zkmultisig 2 votes, 2 lvls", function () {
 	    s: [0n, 0n],
 	    r8x: [0n, 0n],
 	    r8y: [0n, 0n],
-	    siblings: [[0n, 0n, 0n], [0n, 0n, 0n]]
+	    siblings: [[0n, 0n, 0n], [0n, 0n, 0n]],
+	    receiptsSiblings: [[0n, 0n, 0n], [0n, 0n, 0n]]
 	};
 
 	try {
@@ -83,6 +87,7 @@ describe("zkmultisig 2 votes, 2 lvls", function () {
 	    chainID: 0n,
 	    processID: 0n,
 	    censusRoot: 0n,
+	    receiptsRoot: 0n,
 	    nVotes: 0n,
 	    result: 0n,
 	    vote: [0n, 2n],
@@ -92,7 +97,8 @@ describe("zkmultisig 2 votes, 2 lvls", function () {
 	    s: [0n, 0n],
 	    r8x: [0n, 0n],
 	    r8y: [0n, 0n],
-	    siblings: [[0n, 0n, 0n], [0n, 0n, 0n]]
+	    siblings: [[0n, 0n, 0n], [0n, 0n, 0n]],
+	    receiptsSiblings: [[0n, 0n, 0n], [0n, 0n, 0n]]
 	};
 
 	try {

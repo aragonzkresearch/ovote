@@ -12,7 +12,7 @@ This repo contains the circuits, contracts & web client library for the zkMultis
    - Install the dependencies: `npm install`
    - Run the tests: `npm run test`
 - Contracts
-   - Needs installed: [foundndry](https://github.com/gakonst/foundry)
+   - Needs installed: [foundry](https://github.com/gakonst/foundry)
    - Run the tests: `forge test`
 - Clientlib
    - Needs installed: [nodejs](https://nodejs.org) (version: >16)
