@@ -2,6 +2,8 @@
 
 *Research project*
 
+zkMultisig: scalable offchain voting with onchain trustless binding results.
+
 This repo contains the circuits, contracts & web client library for the zkMultisig, compatible with the [zkmultisig-node](https://github.com/aragon/zkmultisig-node). All code is in early stages.
 
 

@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.10;
 
+// zkMultisig contract.
+// For LICENSE check https://github.com/aragon/zkmultisig/blob/master/LICENSE
+
 // WARNING: This code is WIP, in early stages.
 
 /// @title ZKMultisig
@@ -28,6 +31,7 @@ contract ZKMultisig {
 	}
 
 	uint256 public lastProcessID; // initialized at 0
+	// TODO change Process ID to uint64
 	mapping(uint256 => Process) public processes;
 	mapping(uint256 => Result) public results;
 
