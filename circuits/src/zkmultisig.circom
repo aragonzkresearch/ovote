@@ -28,6 +28,7 @@ template zkmultisig(nMaxVotes, nLevels) {
     signal input index[nMaxVotes];
     signal input pkX[nMaxVotes];
     signal input pkY[nMaxVotes];
+    signal input weight[nMaxVotes];
     // signatures
     signal input s[nMaxVotes];
     signal input r8x[nMaxVotes];
@@ -46,6 +47,7 @@ template zkmultisig(nMaxVotes, nLevels) {
     component sigVerifier[nMaxVotes];
     component validVote[nMaxVotes];
 
+    signal voteByWeight[nMaxVotes];
     signal r[nMaxVotes+1];
     r[0] <== 0;
 
@@ -70,9 +72,10 @@ template zkmultisig(nMaxVotes, nLevels) {
 	}
 
 	// check CensusProof
-	pkHash[i] = Poseidon(2);
+	pkHash[i] = Poseidon(3);
 	pkHash[i].inputs[0] <== pkX[i];
 	pkHash[i].inputs[1] <== pkY[i];
+	pkHash[i].inputs[2] <== weight[i];
 	
 	censusProofCheck[i] = SMTVerifier(circomNLevels);
 	censusProofCheck[i].enabled <== inNVotes[i].out; // enable it if i<nVotes
@@ -121,7 +124,8 @@ template zkmultisig(nMaxVotes, nLevels) {
 	vote[i] * (vote[i] - 1) === 0;
 
 	// count the vote (if i<nVotes)
-	r[i+1] <== r[i] + vote[i] * inNVotes[i].out;
+	voteByWeight[i] <== vote[i] * weight[i];
+	r[i+1] <== r[i] + voteByWeight[i] * inNVotes[i].out;
     }
 
     // check result
