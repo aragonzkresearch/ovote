@@ -14,8 +14,9 @@ contract ZKMultisig {
 		uint256 transactionHash;
 		uint256 censusRoot;
 
-		// next 6 values are grouped and they use 209 bits, so they fit
+		// next 7 values are grouped and they use 217 bits, so they fit
 		// in a single 256 storage slot
+		uint8 typ; // type of process, 0: multisig, 1: referendum
 		uint64 censusSize;
 		uint64 resPubStartBlock; // results publishing start block
 		uint64 resPubWindow; // results publishing window
@@ -38,11 +39,11 @@ contract ZKMultisig {
 
 	// Events used to synchronize the zkmultisig-node when scanning the blocks
 
-	event EventProcessCreated(address creator, uint256 id,uint256
-				  transactionHash,  uint256 censusRoot, uint64
-				  censusSize, uint64 resPubStartBlock, uint64
-				  resPubWindow, uint8 minParticipation, uint8
-				  minPositiveVotes);
+	event EventProcessCreated(address creator, uint256 id, uint256
+				  transactionHash,  uint256 censusRoot, uint8
+				  typ, uint64 censusSize, uint64
+				  resPubStartBlock, uint64 resPubWindow, uint8
+				  minParticipation, uint8 minPositiveVotes);
 
 	event EventResultPublished(address publisher, uint256 id, uint256
 				   receiptsRoot, uint64 result, uint64 nVotes);
@@ -62,27 +63,33 @@ contract ZKMultisig {
 	function newProcess(
 		uint256 transactionHash,
 		uint256 censusRoot,
+		uint8 typ,
 		uint64 censusSize,
 		uint64 resPubStartBlock,
 		uint64 resPubWindow,
 		uint8 minParticipation,
 		uint8 minPositiveVotes
 	) public returns (uint256) {
+		require(typ<=1, "typ must be 0 or 1");
 		require(minPositiveVotes <= 100, "minPositiveVotes <= 100");
 
+		if (typ==0) {
+			// we're in multisig mode, nullify the referendum exclusive params
+			resPubWindow = 0;
+			minPositiveVotes = 0;
+		}
+
 		processes[lastProcessID +1] = Process(msg.sender, transactionHash,
-				censusRoot, censusSize, resPubStartBlock,
-				resPubWindow, minParticipation,
-				minPositiveVotes, false);
+				censusRoot, typ, censusSize, resPubStartBlock,
+				resPubWindow, minParticipation,minPositiveVotes, false);
 
 		// assume that we use solidity versiont >=0.8, which prevents
 		// overflow with normal addition
 		lastProcessID += 1;
 
 		emit EventProcessCreated(msg.sender, lastProcessID, transactionHash,
-					 censusRoot, censusSize, resPubStartBlock,
-					 resPubWindow,
-					 minParticipation, minPositiveVotes);
+					 censusRoot, typ, censusSize, resPubStartBlock,
+					 resPubWindow, minParticipation, minPositiveVotes);
 
 		return lastProcessID;
 	}
@@ -105,12 +112,18 @@ contract ZKMultisig {
 		// check that id has a process
 		require(id<=lastProcessID, "process id does not exist");
 
+		Process storage process = processes[id];
+		require(process.closed == false, "process already closed");
+
 		// check that resPubStartBlock has been reached
 		require(block.number >= processes[id].resPubStartBlock,
 			"nVotes >= process.resPubStartBlock");
-		// check that ResultsPublishingWindow is not over
-		require(block.number < processes[id].resPubStartBlock + processes[id].resPubWindow,
-			"nVotes < process.resPubStartBlock + process.resPubWindow");
+
+		if (process.typ==1) { // referendum type
+			// check that ResultsPublishingWindow is not over
+			require(block.number < processes[id].resPubStartBlock + processes[id].resPubWindow,
+				"nVotes < process.resPubStartBlock + process.resPubWindow");
+		}
 
 		// check that nVotes <= process.censusSize
 		require(nVotes <= processes[id].censusSize,
@@ -119,23 +132,29 @@ contract ZKMultisig {
 		// TODO build inputs array (using Process parameters from processes mapping)
 		// TODO call zkProof verification
 
-		require(nVotes > results[id].nVotes,
-			"nVotes > results[id].nVotes");
 
-
-		Process storage process = processes[id];
-
-		// note: for the moment the next checks are done in the
-		// contract, maybe this will end being ensured by the circuit
+		// note: for the moment the next checks are done in the contract
 		require(nVotes <= process.censusSize,
 			"nVotes <= process.censusSize");
 		require(nVotes > process.minParticipation, // TODO use % of minParticipation over censusSize
 			"nVotes > process.minParticipation %");
 
-		// Result memory result;
-		results[id] = Result(msg.sender, receiptsRoot, result, nVotes);
+
+		if (process.typ==1) { // referendum type
+			require(nVotes > results[id].nVotes,
+				"nVotes > results[id].nVotes");
+
+			// Result memory result;
+			results[id] = Result(msg.sender, receiptsRoot, result, nVotes);
+		}
 
 		emit EventResultPublished(msg.sender, id, receiptsRoot, result, nVotes);
+
+		if (process.typ==0) {
+			process.closed = true;
+			emit EventProcessClosed(msg.sender, id, true);
+			// TODO call the tx of the transactionHash
+		}
 	}
 
 	// @notice closes the process for the given id
@@ -143,10 +162,9 @@ contract ZKMultisig {
 	function closeProcess(uint256 id) public {
 		// get process by id
 		Process storage process = processes[id];
-		require(process.closed == false, "process already closed");
 
-		// close process (in storage)
-		process.closed = true;
+		require(process.closed == false, "process already closed");
+		require(process.typ == 1, "can not close multisig type, is closed through publishResult call");
 
 		// get result by process id
 		Result storage result;
@@ -157,6 +175,9 @@ contract ZKMultisig {
 		if (result.result >= process.minPositiveVotes) { // TODO use % of minPositiveVotes over nVotes
 			// TODO call the tx of the transactionHash
 		}
+
+		// close process (in storage)
+		process.closed = true;
 
 		emit EventProcessClosed(msg.sender, id, true);
 	} 
