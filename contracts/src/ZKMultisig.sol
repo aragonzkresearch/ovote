@@ -16,12 +16,12 @@ contract ZKMultisig {
 
 		// next 7 values are grouped and they use 217 bits, so they fit
 		// in a single 256 storage slot
-		uint8 typ; // type of process, 0: multisig, 1: referendum
 		uint64 censusSize;
 		uint64 resPubStartBlock; // results publishing start block
 		uint64 resPubWindow; // results publishing window
 		uint8 minParticipation; // number of votes
 		uint8 minPositiveVotes; // % over nVotes
+		uint8 typ; // type of process, 0: multisig, 1: referendum
 		bool closed;
 	}
 	struct Result {
@@ -40,10 +40,10 @@ contract ZKMultisig {
 	// Events used to synchronize the zkmultisig-node when scanning the blocks
 
 	event EventProcessCreated(address creator, uint256 id, uint256
-				  transactionHash,  uint256 censusRoot, uint8
-				  typ, uint64 censusSize, uint64
-				  resPubStartBlock, uint64 resPubWindow, uint8
-				  minParticipation, uint8 minPositiveVotes);
+				  transactionHash,  uint256 censusRoot, uint64
+				  censusSize, uint64 resPubStartBlock, uint64
+				  resPubWindow, uint8 minParticipation, uint8
+				  minPositiveVotes,  uint8 typ);
 
 	event EventResultPublished(address publisher, uint256 id, uint256
 				   receiptsRoot, uint64 result, uint64 nVotes);
@@ -63,12 +63,12 @@ contract ZKMultisig {
 	function newProcess(
 		uint256 transactionHash,
 		uint256 censusRoot,
-		uint8 typ,
 		uint64 censusSize,
 		uint64 resPubStartBlock,
 		uint64 resPubWindow,
 		uint8 minParticipation,
-		uint8 minPositiveVotes
+		uint8 minPositiveVotes,
+		uint8 typ
 	) public returns (uint256) {
 		require(typ<=1, "typ must be 0 or 1");
 		require(minPositiveVotes <= 100, "minPositiveVotes <= 100");
@@ -80,16 +80,17 @@ contract ZKMultisig {
 		}
 
 		processes[lastProcessID +1] = Process(msg.sender, transactionHash,
-				censusRoot, typ, censusSize, resPubStartBlock,
-				resPubWindow, minParticipation,minPositiveVotes, false);
+				censusRoot, censusSize, resPubStartBlock, resPubWindow,
+				minParticipation,minPositiveVotes, typ, false);
 
 		// assume that we use solidity versiont >=0.8, which prevents
 		// overflow with normal addition
 		lastProcessID += 1;
 
 		emit EventProcessCreated(msg.sender, lastProcessID, transactionHash,
-					 censusRoot, typ, censusSize, resPubStartBlock,
-					 resPubWindow, minParticipation, minPositiveVotes);
+					 censusRoot, censusSize, resPubStartBlock,
+					 resPubWindow, minParticipation,
+					 minPositiveVotes, typ);
 
 		return lastProcessID;
 	}
