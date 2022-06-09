@@ -7,7 +7,7 @@ const { assert, expect } = require("chai");
 const wasm_tester = require("circom_tester").wasm;
 
 
-describe("zkmultisig 2 votes, 2 lvls", function () {
+describe("ovote 2 votes, 2 lvls", function () {
     this.timeout(100000);
 
     let cir;
@@ -15,8 +15,8 @@ describe("zkmultisig 2 votes, 2 lvls", function () {
 	const circuitPath = path.join(__dirname, "circuits", "2votes2lvls.circom");
 	const circuitCode = `
 	    pragma circom 2.0.0;
-	    include "../../src/zkmultisig.circom";
-	    component main {public [chainID, processID, censusRoot, result]}= zkmultisig(2, 2);
+	    include "../../src/ovote.circom";
+	    component main {public [chainID, processID, censusRoot, result]}= ovote(2, 2);
 	`;
 	fs.writeFileSync(circuitPath, circuitCode, "utf8");
 
@@ -80,7 +80,7 @@ describe("zkmultisig 2 votes, 2 lvls", function () {
 	    // The line will only be reached if no error is thrown above
 	    throw new Error(`Expected an error and didn't get one`);
 	} catch(err) {
-	    expect(err.message).to.contain("Error in template zkmultisig");
+	    expect(err.message).to.contain("Error in template ovote");
 	}
     });
 
@@ -112,7 +112,7 @@ describe("zkmultisig 2 votes, 2 lvls", function () {
 	    // The line will only be reached if no error is thrown above
 	    throw new Error(`Expected an error and didn't get one`);
 	} catch(err) {
-	    expect(err.message).to.contain("Error in template zkmultisig");
+	    expect(err.message).to.contain("Error in template ovote");
 	}
     });
 });

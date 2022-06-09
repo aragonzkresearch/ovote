@@ -1,5 +1,5 @@
-// zkMultisig circuit.
-// For LICENSE check https://github.com/aragon/zkmultisig/blob/master/LICENSE
+// OVOTE circuit.
+// For LICENSE check https://github.com/aragon/ovote/blob/master/LICENSE
 
 pragma circom 2.0.0;
 
@@ -8,7 +8,7 @@ include "../node_modules/circomlib/circuits/poseidon.circom";
 include "../node_modules/circomlib/circuits/smt/smtverifier.circom";
 include "../node_modules/circomlib/circuits/eddsaposeidon.circom";
 
-template zkmultisig(nMaxVotes, nLevels) {
+template ovote(nMaxVotes, nLevels) {
     var circomNLevels = nLevels+1;
 
     /////

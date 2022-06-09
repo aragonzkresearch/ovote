@@ -1,7 +1,7 @@
 {
-  "name": "zkmultisig",
+  "name": "ovote",
   "version": "0.0.1",
-  "description": "zkmultisig",
+  "description": "ovote circuits",
   "main": "index.js",
   "directories": {
     "test": "test"

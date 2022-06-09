@@ -1,7 +1,7 @@
 {
-  "name": "zkmultisig-clientlib",
+  "name": "ovote-clientlib",
   "version": "0.0.1",
-  "description": "zkmultisig clientlib",
+  "description": "ovote clientlib",
   "main": "index.js",
   "directories": {
     "test": "test"

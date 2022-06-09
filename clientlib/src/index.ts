@@ -17,7 +17,7 @@ class Client {
 	eddsa: any;
 
 	chainID: number;
-	url: string; // zkmultisig-node url
+	url: string; // ovote-node url
 
 	// using the 'static async new' approach (instead of 'constructor'), in
 	// order to be able to do an async constructor of the Client class

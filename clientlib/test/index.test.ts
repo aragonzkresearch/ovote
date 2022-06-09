@@ -6,7 +6,7 @@ const { Client, Voter } = require("../src/index");
 
 export {};
 
-describe("full vote process flow (interacting with zkmultisig-node)", function () {
+describe("full vote process flow (interacting with ovote-node)", function () {
 	this.timeout(100000);
 
 	it("flow", async () => {
@@ -30,13 +30,13 @@ describe("full vote process flow (interacting with zkmultisig-node)", function (
 
 		// WIP:
 		// create a list of publicKeys
-		// send the publicKeys to the zkmultisig-node to create a census
+		// send the publicKeys to the ovote-node to create a census
 		// close the census
 		// get the CensusRoot for the census
 		// publish new process using that CensusRoot
 		// users retrieve their CensusProofs
 		// users sign their votes
-		// users send {CensusProof + Signature + Vote} to the zkmultisig-node
+		// users send {CensusProof + Signature + Vote} to the ovote-node
 		// 	if accepted, everything should be fine
 	});
 });

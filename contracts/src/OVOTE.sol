@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity 0.8.10;
 
-// zkMultisig contract.
-// For LICENSE check https://github.com/aragon/zkmultisig/blob/master/LICENSE
+// OVOTE contract.
+// For LICENSE check https://github.com/aragon/ovote/blob/master/LICENSE
 
 // WARNING: This code is WIP, in early stages.
 
-/// @title ZKMultisig
+/// @title OVOTE
 /// @author Aragon Association - 2022
-contract ZKMultisig {
+contract OVOTE {
 	struct Process {
 		address creator; // the sender of the tx that created the process
 		uint256 transactionHash;
@@ -37,7 +37,7 @@ contract ZKMultisig {
 	mapping(uint256 => Result) public results;
 
 
-	// Events used to synchronize the zkmultisig-node when scanning the blocks
+	// Events used to synchronize the ovote-node when scanning the blocks
 
 	event EventProcessCreated(address creator, uint256 id, uint256
 				  transactionHash,  uint256 censusRoot, uint64
