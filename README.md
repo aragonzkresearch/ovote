@@ -6,6 +6,8 @@ OVOTE: Offchain Voting with Onchain Trustless Execution.
 
 This repo contains the circuits, contracts & web client library for the OVOTE, compatible with the [ovote-node](https://github.com/aragon/ovote-node). All code is in early stages.
 
+More details on the OVOTE circuits and contracts design can be found at the [OVOTE document](https://github.com/aragon/research/blob/main/ovote/ovote-draft.pdf).
+
 
 ## Test
 
@@ -20,3 +22,4 @@ This repo contains the circuits, contracts & web client library for the OVOTE, c
    - Needs installed: [nodejs](https://nodejs.org) (version: >16)
    - Install the dependencies: `npm install`
    - Run the tests: `npm run test`
+
