@@ -1,4 +1,4 @@
-# OVOTE Circuits [![Circuits](https://github.com/aragon/ovote/workflows/Circuits/badge.svg)](https://github.com/aragon/ovote/actions/workflows/circuits.yml?query=workflow%3ACircuits)
+# OVOTE Circuits [![Circuits](https://github.com/groupoidlabs/ovote/workflows/Circuits/badge.svg)](https://github.com/groupoidlabs/ovote/actions/workflows/circuits.yml?query=workflow%3ACircuits)
 
 Circom implementation of the OVOTE circuits.
 

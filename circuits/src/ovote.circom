@@ -1,5 +1,5 @@
 // OVOTE circuit.
-// For LICENSE check https://github.com/aragon/ovote/blob/master/LICENSE
+// For LICENSE check https://github.com/groupoidlabs/ovote/blob/master/LICENSE
 
 pragma circom 2.0.0;
 

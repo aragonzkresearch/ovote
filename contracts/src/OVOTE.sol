@@ -2,12 +2,12 @@
 pragma solidity 0.8.10;
 
 // OVOTE contract.
-// For LICENSE check https://github.com/aragon/ovote/blob/master/LICENSE
+// For LICENSE check https://github.com/groupoidlabs/ovote/blob/master/LICENSE
 
 // WARNING: This code is WIP, in early stages.
 
 /// @title OVOTE
-/// @author Aragon Association - 2022
+/// @author Groupoid Labs - 2022
 contract OVOTE {
 	struct Process {
 		address creator; // the sender of the tx that created the process
