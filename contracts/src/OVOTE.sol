@@ -20,7 +20,6 @@ contract OVOTE {
 		uint64 resPubStartBlock; // results publishing start block
 		uint64 resPubWindow; // results publishing window
 		uint8 minParticipation; // number of votes
-		uint8 minPositiveVotes; // % over nVotes
 		uint8 typ; // type of process, 0: multisig, 1: referendum
 		bool closed;
 	}
@@ -43,7 +42,7 @@ contract OVOTE {
 				  transactionHash,  uint256 censusRoot, uint64
 				  censusSize, uint64 resPubStartBlock, uint64
 				  resPubWindow, uint8 minParticipation, uint8
-				  minPositiveVotes,  uint8 typ);
+				  typ);
 
 	event EventResultPublished(address publisher, uint256 id, uint256
 				   receiptsRoot, uint64 result, uint64 nVotes);
@@ -58,7 +57,6 @@ contract OVOTE {
 	/// @param resPubStartBlock Block number where the results publishing phase starts
 	/// @param resPubWindow Window of time (in number of blocks) of the results publishing phase
 	/// @param minParticipation Threshold of minimum number of votes over the total users in the census (over CensusSize)
-	/// @param minPositiveVotes Threshold of minimum votes supporting the proposal, over all the processed votes (% over nVotes)
 	/// @return id assigned to the created process
 	function newProcess(
 		uint256 transactionHash,
@@ -67,21 +65,13 @@ contract OVOTE {
 		uint64 resPubStartBlock,
 		uint64 resPubWindow,
 		uint8 minParticipation,
-		uint8 minPositiveVotes,
 		uint8 typ
 	) public returns (uint256) {
 		require(typ<=1, "typ must be 0 or 1");
-		require(minPositiveVotes <= 100, "minPositiveVotes <= 100");
-
-		if (typ==0) {
-			// we're in multisig mode, nullify the referendum exclusive params
-			resPubWindow = 0;
-			minPositiveVotes = 0;
-		}
 
 		processes[lastProcessID +1] = Process(msg.sender, transactionHash,
 				censusRoot, censusSize, resPubStartBlock, resPubWindow,
-				minParticipation,minPositiveVotes, typ, false);
+				minParticipation, typ, false);
 
 		// assume that we use solidity versiont >=0.8, which prevents
 		// overflow with normal addition
@@ -89,8 +79,7 @@ contract OVOTE {
 
 		emit EventProcessCreated(msg.sender, lastProcessID, transactionHash,
 					 censusRoot, censusSize, resPubStartBlock,
-					 resPubWindow, minParticipation,
-					 minPositiveVotes, typ);
+					 resPubWindow, minParticipation, typ);
 
 		return lastProcessID;
 	}
@@ -120,11 +109,9 @@ contract OVOTE {
 		require(block.number >= processes[id].resPubStartBlock,
 			"nVotes >= process.resPubStartBlock");
 
-		if (process.typ==1) { // referendum type
-			// check that ResultsPublishingWindow is not over
-			require(block.number < processes[id].resPubStartBlock + processes[id].resPubWindow,
-				"nVotes < process.resPubStartBlock + process.resPubWindow");
-		}
+		// check that ResultsPublishingWindow is not over
+		require(block.number < processes[id].resPubStartBlock + processes[id].resPubWindow,
+			"nVotes < process.resPubStartBlock + process.resPubWindow");
 
 		// check that nVotes <= process.censusSize
 		require(nVotes <= processes[id].censusSize,
@@ -173,9 +160,9 @@ contract OVOTE {
 
 		require(block.number >= process.resPubStartBlock + process.resPubWindow,
 			"process.resPubStartBlock not reached yet");
-		if (result.result >= process.minPositiveVotes) { // TODO use % of minPositiveVotes over nVotes
-			// TODO call the tx of the transactionHash
-		}
+
+		// TODO check result>50% of positive votes
+		// and if ok, then call the tx of the transactionHash
 
 		// close process (in storage)
 		process.closed = true;
