@@ -4,10 +4,17 @@
 // OVOTE census data structure.
 // 
 // For LICENSE check https://github.com/aragonzkresearch/ovote/blob/master/LICENSE
+//
+// OAV circuit checks:
+// - User proves that owns a key which is in the Census MerkleTree
+// - User's key (which is in the Census) has signed their vote
+// - User claimed nullifier is correct, which is used by the smart contract to ensure that the same user does not vote twice
+
 
 pragma circom 2.0.0;
 
 include "../node_modules/circomlib/circuits/babyjub.circom";
+include "../node_modules/circomlib/circuits/eddsaposeidon.circom";
 include "../node_modules/circomlib/circuits/smt/smtverifier.circom";
 include "../node_modules/circomlib/circuits/poseidon.circom";
 
@@ -28,16 +35,35 @@ template oav(nLevels) {
     /////
     // private inputs
     signal input index;
-    signal input privateKey;
+    signal input pubKx; // user babyjubjub public key
+    signal input pubKy;
+    signal input s;
+    signal input rx;
+    signal input ry;
     signal input siblings[circomNLevels];
 
-    component pubK = BabyPbk();
-    pubK.in <== privateKey;
+
+    
+    component toSign = Poseidon(1);
+    toSign.inputs[0] <== vote;
+
+    // check vote signature
+    component voteAndCharterSigVerifier = EdDSAPoseidonVerifier();
+    voteAndCharterSigVerifier.enabled <== 1;
+    voteAndCharterSigVerifier.Ax <== pubKx;
+    voteAndCharterSigVerifier.Ay <== pubKy;
+    voteAndCharterSigVerifier.S <== s;
+    voteAndCharterSigVerifier.R8x <== rx;
+    voteAndCharterSigVerifier.R8y <== ry;
+    voteAndCharterSigVerifier.M <== toSign.out;
+
+    // ensure vote is 0 or 1 (v==0 or v==1)
+    vote * (vote - 1) === 0;
 
     // check CensusProof
     component pkHash = Poseidon(3);
-    pkHash.inputs[0] <== pubK.Ax;
-    pkHash.inputs[1] <== pubK.Ay;
+    pkHash.inputs[0] <== pubKx;
+    pkHash.inputs[1] <== pubKy;
     pkHash.inputs[2] <== weight;
     
     component censusProofCheck = SMTVerifier(circomNLevels);
@@ -54,10 +80,11 @@ template oav(nLevels) {
     censusProofCheck.value <== pkHash.out;
 
     // check nullifier
-    component computedNullifier = Poseidon(3);
-    computedNullifier.inputs[0] <== privateKey;
-    computedNullifier.inputs[1] <== chainID;
-    computedNullifier.inputs[2] <== processID;
+    component computedNullifier = Poseidon(4);
+    computedNullifier.inputs[0] <== chainID;
+    computedNullifier.inputs[1] <== processID;
+    computedNullifier.inputs[2] <== pubKx;
+    computedNullifier.inputs[3] <== pubKy;
     component checkNullifier = ForceEqualIfEnabled();
     checkNullifier.enabled <== 1;
     checkNullifier.in[0] <== computedNullifier.out;

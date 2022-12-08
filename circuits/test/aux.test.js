@@ -65,9 +65,9 @@ describe("Check nConstraints for PkXExtractor vs poseidon hash", function () {
 	    include "../../node_modules/circomlib/circuits/comparators.circom";
 
 	    template NullifierCheck() {
-	    	signal input chainID; // public
-	    	signal input processID; // public
-	    	signal input nullifier; // public
+		    signal input chainID; // public
+		    signal input processID; // public
+		    signal input nullifier; // public
 		signal input secretKey;
 
 		component computedNullifier = Poseidon(3);

@@ -28,7 +28,7 @@ contract OVOTETest is DSTest {
          _resultsPublishingWindow, uint8 _minParticipation, uint8 _typ, bool
          _closed) = ovote.processes(1);
 
-        assertEq(_creator, 0xb4c79daB8f259C7Aee6E5b2Aa729821864227e84); // address of creator
+        assertEq(_creator, 0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496); // address of creator
         assertEq(_transactionHash, 2222);
         assertEq(_censusRoot, 1111);
         assertEq(_censusSize, 1000);
@@ -50,7 +50,7 @@ contract OVOTETest is DSTest {
          _resultsPublishingWindow, uint8 _minParticipation, uint8 _typ, bool
          _closed) = ovote.processes(2);
 
-        assertEq(_creator, 0xb4c79daB8f259C7Aee6E5b2Aa729821864227e84);
+        assertEq(_creator, 0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496);
         assertEq(_transactionHash, 2222);
         assertEq(_censusRoot, 1111);
         assertEq(_censusSize, 1000);
@@ -74,7 +74,7 @@ contract OVOTETest is DSTest {
          _resultsPublishingWindow, uint8 _minParticipation, uint8 _typ, bool
          _closed) = ovote.processes(1);
 
-        assertEq(_creator, 0xb4c79daB8f259C7Aee6E5b2Aa729821864227e84); // address of creator
+        assertEq(_creator, 0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496); // address of creator
         assertEq(_transactionHash, 2222);
         assertEq(_censusRoot, 1111);
         assertEq(_censusSize, 1000);
@@ -96,7 +96,7 @@ contract OVOTETest is DSTest {
          _resultsPublishingWindow, uint8 _minParticipation, uint8 _typ, bool
          _closed) = ovote.processes(2);
 
-        assertEq(_creator, 0xb4c79daB8f259C7Aee6E5b2Aa729821864227e84);
+        assertEq(_creator, 0x7FA9385bE102ac3EAc297483Dd6233D62b3e1496);
         assertEq(_transactionHash, 2222);
         assertEq(_censusRoot, 1111);
         assertEq(_censusSize, 1000);
