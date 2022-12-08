@@ -14,7 +14,7 @@ contract OVOTE {
 		uint256 transactionHash;
 		uint256 censusRoot;
 
-		// next 7 values are grouped and they use 217 bits, so they fit
+		// next 6 values are grouped and they use 216 bits, so they fit
 		// in a single 256 storage slot
 		uint64 censusSize;
 		uint64 resPubStartBlock; // results publishing start block

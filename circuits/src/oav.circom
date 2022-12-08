@@ -1,7 +1,7 @@
 // OAV: Onchain Anonymous Voting, using the same OVOTE census
-// The OAV follows the same design done in
-// https://github.com/vocdoni/zk-franchise-proof-circuit but adapted to the
-// OVOTE census data structure.
+// The OAV follows a similar design done in
+// https://github.com/vocdoni/zk-franchise-proof-circuit but with some
+// modifications, and it is compatible to the OVOTE census data structure.
 // 
 // For LICENSE check https://github.com/aragonzkresearch/ovote/blob/master/LICENSE
 //
