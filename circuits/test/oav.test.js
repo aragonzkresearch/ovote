@@ -6,6 +6,11 @@ const { assert, expect } = require("chai");
 // const c_tester = require("circom_tester").c;
 const wasm_tester = require("circom_tester").wasm;
 
+// needed for circuitPrivK
+const createBlakeHash = require("blake-hash");
+const utils = require("ffjavascript").utils;
+const Scalar = require("ffjavascript").Scalar;
+
 const { newMemEmptyTrie, buildPoseidonReference, buildEddsa } = require(
   "circomlibjs",
 );
@@ -51,10 +56,11 @@ describe("oav 4 lvls", function () {
     const processID = 0n;
 
     // voter key generation
-    const privateKey = fromHexString(
-      "0001020304050607080900010203040506070809000102030405060708090001",
-    );
-    const publicKey = eddsa.prv2pub(privateKey);
+    const privK = Buffer.from("0001020304050607080900010203040506070809000102030405060708090021", "hex");
+    const pvk    = eddsa.pruneBuffer(createBlakeHash("blake512").update(privK).digest().slice(0,32));
+    const circuitPrivK      = Scalar.shr(utils.leBuff2int(pvk), 3);
+
+    const publicKey = eddsa.prv2pub(privK);
 
     // build the census tree add public keys to the tree
     let index = 1;
@@ -78,14 +84,13 @@ describe("oav 4 lvls", function () {
     let vote = 1;
 
     // user signs vote
-    const toSign = poseidon([vote]);
-    const signature = eddsa.signPoseidon(privateKey, toSign);
+    const toSign = poseidon([chainID, processID, vote]);
+    const signature = eddsa.signPoseidon(privK, toSign);
 
     const nullifier = poseidon([
       chainID,
       processID,
-      publicKey[0],
-      publicKey[1],
+      circuitPrivK,
     ]);
 
     // set the inputs
@@ -97,8 +102,7 @@ describe("oav 4 lvls", function () {
       nullifier: F.toObject(nullifier).toString(),
       vote: vote,
       index: index, // private inputs
-      pubKx: F.toObject(publicKey[0]).toString(),
-      pubKy: F.toObject(publicKey[1]).toString(),
+      privK: circuitPrivK,
       s: signature.S,
       rx: F.toObject(signature.R8[0]).toString(),
       ry: F.toObject(signature.R8[1]).toString(),

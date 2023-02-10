@@ -34,9 +34,8 @@ template oav(nLevels) {
 
     /////
     // private inputs
+    signal input privK; // user babyjubjub private key
     signal input index;
-    signal input pubKx; // user babyjubjub public key
-    signal input pubKy;
     signal input s;
     signal input rx;
     signal input ry;
@@ -44,14 +43,19 @@ template oav(nLevels) {
 
 
     
-    component toSign = Poseidon(1);
-    toSign.inputs[0] <== vote;
+    component toSign = Poseidon(3);
+    toSign.inputs[0] <== chainID;
+    toSign.inputs[1] <== processID;
+    toSign.inputs[2] <== vote;
+
+    component pubK = BabyPbk();
+    pubK.in <== privK;
 
     // check vote signature
     component voteAndCharterSigVerifier = EdDSAPoseidonVerifier();
     voteAndCharterSigVerifier.enabled <== 1;
-    voteAndCharterSigVerifier.Ax <== pubKx;
-    voteAndCharterSigVerifier.Ay <== pubKy;
+    voteAndCharterSigVerifier.Ax <== pubK.Ax;
+    voteAndCharterSigVerifier.Ay <== pubK.Ay;
     voteAndCharterSigVerifier.S <== s;
     voteAndCharterSigVerifier.R8x <== rx;
     voteAndCharterSigVerifier.R8y <== ry;
@@ -62,8 +66,8 @@ template oav(nLevels) {
 
     // check CensusProof
     component pkHash = Poseidon(3);
-    pkHash.inputs[0] <== pubKx;
-    pkHash.inputs[1] <== pubKy;
+    pkHash.inputs[0] <== pubK.Ax;
+    pkHash.inputs[1] <== pubK.Ay;
     pkHash.inputs[2] <== weight;
     
     component censusProofCheck = SMTVerifier(circomNLevels);
@@ -80,11 +84,10 @@ template oav(nLevels) {
     censusProofCheck.value <== pkHash.out;
 
     // check nullifier
-    component computedNullifier = Poseidon(4);
+    component computedNullifier = Poseidon(3);
     computedNullifier.inputs[0] <== chainID;
     computedNullifier.inputs[1] <== processID;
-    computedNullifier.inputs[2] <== pubKx;
-    computedNullifier.inputs[3] <== pubKy;
+    computedNullifier.inputs[2] <== privK;
     component checkNullifier = ForceEqualIfEnabled();
     checkNullifier.enabled <== 1;
     checkNullifier.in[0] <== computedNullifier.out;

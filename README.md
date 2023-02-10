@@ -6,7 +6,7 @@
 
 This repo contains the OVOTE circuits and contracts, compatible with the [ovote-node](https://github.com/aragonzkresearch/ovote-node) and [ovote-clientlib](https://github.com/aragonzkresearch/ovote-node). All code is in early stages.
 
-More details on the OVOTE circuits and contracts design can be found at the [OVOTE document](https://github.com/aragonzkresearch/research/blob/main/drafts/ovote.pdf).
+More details on the OVOTE circuits and contracts design can be found at the [OVOTE document](https://github.com/aragonzkresearch/research/blob/main/ovote/ovote.pdf).
 
 ## OAV: Onchain Anonymous Voting
 Reusing the same census created for OVOTE, users can vote onchain anonymously.
